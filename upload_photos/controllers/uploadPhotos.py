@@ -36,6 +36,17 @@ def uploadPhotos():
             if not file or not allowed_file(file.filename):
                 return jsonify({"status": "error", "message": "Invalid file type"}), 400
 
+            # Validate latitude and longitude
+            if not latitude or not longitude or latitude == 'null' or longitude == 'null':
+                return jsonify({"status": "error", "message": "Location data is required"}), 400
+
+            # Convert latitude and longitude to floats
+            try:
+                latitude = float(latitude)
+                longitude = float(longitude)
+            except ValueError:
+                return jsonify({"status": "error", "message": "Invalid latitude or longitude format"}), 400
+
             # Save the photo file
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -58,5 +69,11 @@ def uploadPhotos():
             return jsonify({"status": "success", "message": "Photo uploaded successfully"}), 201
 
         except Exception as e:
-            # session.rollback()
+            app.logger.error(f'Error in uploadPhotos: {str(e)}')
             return jsonify({"status": "error", "message": str(e)}), 500
+
+def getPhotosData():
+    session = DBSession()
+    photos = session.query(PhotoEntry).order_by(desc(PhotoEntry.CrDtTm)).all()
+    session.close()
+    return jsonify({"status": "success", "data": [photo.to_dict() for photo in photos]}), 200

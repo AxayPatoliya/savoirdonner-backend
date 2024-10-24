@@ -17,3 +17,14 @@ class PhotoEntry(Base):
     Latitude = Column(Float, nullable=False)
     Longitude = Column(Float, nullable=False)
     CrDtTm = Column(DateTime, default=datetime.now, nullable=False)
+
+    def to_dict(self):
+        return {
+            'ID': self.ID,
+            'Location': self.Location,
+            'Comment': self.Comment,
+            'Photo': self.Photo,
+            'Latitude': self.Latitude,
+            'Longitude': self.Longitude,
+            'CrDtTm': self.CrDtTm
+        }
